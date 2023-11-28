@@ -94,7 +94,7 @@ class VenueViewModel @Inject constructor(
     }
 
     companion object {
-        const val PARAM_ID = "id"
+        const val PARAM_ID = "venueId"
         const val LOAD_FAILED_KEY = "query_failed"
     }
 }

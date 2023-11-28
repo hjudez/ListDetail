@@ -23,7 +23,7 @@
         tools:layout="@layout/fragment_venue">
 
         <argument
-            android:name="id"
+            android:name="venueId"
             app:argType="string" />
     </fragment>
 </navigation>
