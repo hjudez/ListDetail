@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.hexterlabs.listdetail.ui.searchvenues.SearchVenuesViewModel" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:importantForAccessibility="no"
+        tools:context=".ui.searchvenues.SearchVenuesFragment">
+
+        <SearchView
+            android:id="@+id/search_venues_search_view"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:iconifiedByDefault="false"
+            android:imeOptions="flagNoFullscreen"
+            app:layout_constraintBottom_toTopOf="@id/search_venues_list"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/search_venues_list"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/search_venues_search_view" />
+
+        <ImageView
+            android:id="@+id/venues_error_image"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:importantForAccessibility="no"
+            android:src="@drawable/ic_connection_error"
+            android:visibility="gone"
+            app:layout_constraintBottom_toBottomOf="@+id/search_venues_list"
+            app:layout_constraintEnd_toEndOf="@+id/search_venues_list"
+            app:layout_constraintStart_toStartOf="@+id/search_venues_list"
+            app:layout_constraintTop_toTopOf="@+id/search_venues_list"
+            app:refreshDataState="@{viewModel.refreshDataState}" />
+
+        <ProgressBar
+            android:id="@+id/venues_progress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:layout_constraintBottom_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:refreshDataState="@{viewModel.refreshDataState}" />
+
+        <TextView
+            android:id="@+id/venues_no_result"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical"
+            android:text="@string/no_results_found"
+            android:visibility="gone"
+            app:drawableStartCompat="@drawable/round_outlet_24"
+            app:layout_constraintBottom_toBottomOf="@+id/search_venues_list"
+            app:layout_constraintEnd_toEndOf="@+id/search_venues_list"
+            app:layout_constraintStart_toStartOf="@+id/search_venues_list"
+            app:layout_constraintTop_toTopOf="@+id/search_venues_list"
+            app:layout_constraintVertical_bias="0.22000003"
+            app:refreshDataState="@{viewModel.refreshDataState}" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

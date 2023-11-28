@@ -1,0 +1,189 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="viewModel"
+            type="com.hexterlabs.listdetail.ui.venue.VenueViewModel" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?attr/colorSurface"
+        android:fitsSystemWindows="true"
+        tools:context=".ui.MainActivity"
+        tools:ignore="MergeRootFrame">
+
+        <com.google.android.material.appbar.AppBarLayout
+            android:id="@+id/appbar"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/venue_detail_app_bar_height"
+            android:animateLayoutChanges="true"
+            android:background="?attr/colorSurface"
+            android:fitsSystemWindows="true"
+            android:stateListAnimator="@animator/show_toolbar"
+            android:theme="@style/Theme.ListDetail.AppBarOverlay">
+
+            <com.google.android.material.appbar.CollapsingToolbarLayout
+                android:id="@+id/toolbar_layout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:fitsSystemWindows="true"
+                app:collapsedTitleGravity="center"
+                app:collapsedTitleTextAppearance="@style/TextAppearance.ListDetail.Toolbar.Text"
+                app:contentScrim="?attr/colorSurface"
+                app:layout_scrollFlags="scroll|exitUntilCollapsed"
+                app:statusBarScrim="?attr/colorSurface"
+                app:title="@{viewModel.venue.name}"
+                app:titleEnabled="false"
+                app:toolbarId="@id/toolbar">
+
+                <ImageView
+                    android:id="@+id/venue_image"
+                    android:layout_width="match_parent"
+                    android:layout_height="@dimen/venue_detail_app_bar_height"
+                    android:contentDescription="@string/venue_image_content_description"
+                    android:fitsSystemWindows="true"
+                    android:scaleType="centerCrop"
+                    app:imageUrl="@{viewModel.venue.image_url}"
+                    app:layout_collapseMode="parallax" />
+
+                <com.google.android.material.appbar.MaterialToolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    android:background="@android:color/transparent"
+                    app:contentInsetStartWithNavigation="0dp"
+                    app:layout_collapseMode="pin"
+                    app:navigationIcon="@drawable/ic_detail_back"
+                    app:titleTextColor="?attr/colorOnSurface" />
+
+            </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <androidx.core.widget.NestedScrollView
+            android:id="@+id/venue_detail_scrollview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipToPadding="false"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_margin="@dimen/margin_normal">
+
+                <TextView
+                    android:id="@+id/venue_name"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:gravity="center_horizontal"
+                    android:text="@{viewModel.venue.name}"
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Coffee Shop" />
+
+                <TextView
+                    android:id="@+id/venue_rating"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/venue_name"
+                    app:ratingText="@{viewModel.venue.rating}"
+                    tools:text="Rating: 4.0"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/venue_address"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:text="@{viewModel.venue.address}"
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/venue_rating"
+                    app:visibilityOnText="@{viewModel.venue.address}"
+                    tools:text="Calle A, Numero 8\nAmsterdam"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/venue_contact"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:autoLink="phone"
+                    android:text="@{viewModel.venue.contact}"
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/venue_address"
+                    app:visibilityOnText="@{viewModel.venue.contact}"
+                    tools:text="Calle A, Numero 8\nAmsterdam"
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/venue_description"
+                    style="?android:attr/textAppearanceMedium"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/margin_small"
+                    android:layout_marginTop="16dp"
+                    android:layout_marginEnd="@dimen/margin_small"
+                    android:text="@{viewModel.venue.description}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/venue_contact"
+                    app:visibilityOnText="@{viewModel.venue.description}"
+                    tools:text="Details about the venue" />
+
+                <ImageView
+                    android:id="@+id/venues_error_image"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:importantForAccessibility="no"
+                    android:src="@drawable/ic_connection_error"
+                    android:visibility="gone"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:refreshDataState="@{viewModel.refreshDataState}"
+                    tools:visibility="visible" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.core.widget.NestedScrollView>
+
+        <ProgressBar
+            android:id="@+id/venues_progress"
+            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="16dp"
+            android:layout_marginTop="-6dp"
+            android:indeterminate="true"
+            android:visibility="gone"
+            app:refreshDataState="@{viewModel.refreshDataState}" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+</layout>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <import type="kotlin.jvm.functions.Function1" />
+
+        <import type="kotlin.Unit" />
+
+        <variable
+            name="searchVenuesResult"
+            type="com.hexterlabs.listdetail.domain.SearchVenuesResult" />
+
+        <variable
+            name="onClickListener"
+            type="Function1&lt;String, Unit>" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/venue_container"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:onClick="@{() -> onClickListener.invoke(searchVenuesResult.id)}">
+
+        <ImageView
+            android:id="@+id/venue_image"
+            android:layout_width="@dimen/icon_size"
+            android:layout_height="@dimen/icon_size"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            app:imageUrl="@{searchVenuesResult.icon_url}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <TextView
+            android:id="@+id/venue_name"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="16dp"
+            android:text="@{searchVenuesResult.name}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/venue_image"
+            app:layout_constraintTop_toTopOf="@id/venue_image"
+            tools:text="A good burger place" />
+
+        <TextView
+            android:id="@+id/venue_location"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            android:text="@{searchVenuesResult.location}"
+            app:layout_constraintEnd_toEndOf="@id/venue_name"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/venue_name"
+            app:layout_constraintTop_toBottomOf="@id/venue_name"
+            tools:text="Pepito street" />
+
+        <TextView
+            android:id="@+id/venue_distance"
+            android:layout_width="0dp"
+            android:layout_height="20dp"
+            app:distanceText="@{searchVenuesResult.distance}"
+            app:layout_constraintEnd_toEndOf="@id/venue_name"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@id/venue_name"
+            app:layout_constraintTop_toBottomOf="@id/venue_location"
+            tools:text="25 m" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

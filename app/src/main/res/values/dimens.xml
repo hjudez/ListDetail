@@ -1,0 +1,13 @@
+<resources>
+    <dimen name="icon_size">64dp</dimen>
+    <dimen name="venue_detail_app_bar_height">278dp</dimen>
+
+    <!-- elevation for Venue Detail toolbar - used to convert to pixels when hiding/showing -->
+    <dimen name="toolbar_elevation">5dp</dimen>
+    <!-- minimum height of venue detail page so that the collapsing toolbar can be shown on every page -->
+    <dimen name="venue_description_min_height">555dp</dimen>
+
+    <dimen name="margin_normal">16dp</dimen>
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_extra_small">4dp</dimen>
+</resources>

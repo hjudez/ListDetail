@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/SearchVenuesFragment">
+
+    <fragment
+        android:id="@+id/SearchVenuesFragment"
+        android:name="com.hexterlabs.listdetail.ui.searchvenues.SearchVenuesFragment"
+        android:label="@string/search_venues_fragment_label"
+        tools:layout="@layout/fragment_search_venues">
+
+        <action
+            android:id="@+id/action_SearchVenuesFragment_to_VenueFragment"
+            app:destination="@id/VenueFragment" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/VenueFragment"
+        android:name="com.hexterlabs.listdetail.ui.venue.VenueFragment"
+        android:label="@string/venue_fragment_label"
+        tools:layout="@layout/fragment_venue">
+
+        <argument
+            android:name="id"
+            app:argType="string" />
+    </fragment>
+</navigation>
