@@ -8,10 +8,15 @@ import android.widget.SearchView
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.fragment.findNavController
 import com.hexterlabs.listdetail.R
 import com.hexterlabs.listdetail.databinding.FragmentSearchVenuesBinding
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.launch
 
 @AndroidEntryPoint
 class SearchVenuesFragment : Fragment() {
@@ -48,9 +53,13 @@ class SearchVenuesFragment : Fragment() {
             })
             searchVenuesList.adapter = adapter
         }
-        searchVenuesViewModel.searchVenuesResults.observe(viewLifecycleOwner) {
-            it?.let {
-                adapter.submitList(it)
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                searchVenuesViewModel.searchVenuesState.collectLatest {
+                    it?.let {
+                        adapter.submitList(it)
+                    }
+                }
             }
         }
         return binding.root

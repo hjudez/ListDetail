@@ -4,7 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.hexterlabs.listdetail.MainDispatcherRule
 import com.hexterlabs.listdetail.domain.SearchVenuesResult
-import com.hexterlabs.listdetail.getOrAwaitValue
 import com.hexterlabs.listdetail.network.ConnectivityManager
 import com.hexterlabs.listdetail.network.ConnectivityManagerImpl
 import com.hexterlabs.listdetail.repositories.VenuesRepository
@@ -41,7 +40,8 @@ class SearchVenuesViewModelTest {
     private val listOfSearchVenuesResult = listOf(venueA, venueB)
 
     private val flowOfSearchVenuesResult = MutableStateFlow(listOfSearchVenuesResult)
-    private val flowOfConnectivity = MutableStateFlow(ConnectivityManager.ConnectionStatus.CONNECTED)
+    private val flowOfConnectivity =
+        MutableStateFlow(ConnectivityManager.ConnectionStatus.CONNECTED)
 
     private val venuesRepository = mockk<VenuesRepository> {
         every { searchVenuesResults } returns flowOfSearchVenuesResult
@@ -63,7 +63,7 @@ class SearchVenuesViewModelTest {
             venuesRepository.clearSearchVenues()
             venuesRepository.searchVenues("")
         }
-        assertEquals(listOfSearchVenuesResult, tested.searchVenuesResults.getOrAwaitValue())
+        assertEquals(listOfSearchVenuesResult, tested.searchVenuesState.first())
         assertEquals(ListDetailViewModel.RefreshDataStatus.SUCCESS, tested.refreshDataState.value)
     }
 
@@ -89,7 +89,7 @@ class SearchVenuesViewModelTest {
             venuesRepository.clearSearchVenues()
             venuesRepository.searchVenues(EMPTY_RESULTS_QUERY)
         }
-        assertEquals(emptyList<SearchVenuesResult>(), tested.searchVenuesResults.getOrAwaitValue())
+        assertEquals(emptyList<SearchVenuesResult>(), tested.searchVenuesState.first())
         assertEquals(ListDetailViewModel.RefreshDataStatus.NOT_FOUND, tested.refreshDataState.value)
     }
 

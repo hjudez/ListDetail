@@ -1,20 +1,21 @@
 package com.hexterlabs.listdetail.ui.searchvenues
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.hexterlabs.listdetail.domain.SearchVenuesResult
 import com.hexterlabs.listdetail.network.ConnectivityManager
 import com.hexterlabs.listdetail.repositories.VenuesRepository
 import com.hexterlabs.listdetail.ui.ListDetailViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.SharingStarted.Companion.Eagerly
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class SearchVenuesViewModel @Inject constructor(
@@ -26,7 +27,8 @@ class SearchVenuesViewModel @Inject constructor(
     /**
      * Observable that emits the list of [SearchVenuesResult] for the last search query.
      */
-    val searchVenuesResults: LiveData<List<SearchVenuesResult>> = venuesRepository.searchVenuesResults.asLiveData()
+    val searchVenuesState: StateFlow<List<SearchVenuesResult>?> =
+        venuesRepository.searchVenuesResults.stateIn(viewModelScope, Eagerly, null)
 
     /**
      * Holds a reference to the previous search venues job so we can cancel it in case the user triggers another
@@ -46,7 +48,7 @@ class SearchVenuesViewModel @Inject constructor(
     }
 
     /**
-     * Search for venues. To get the results of this call you must subscribe to the LiveData [searchVenuesResults].
+     * Search for venues. To get the results of this call you must subscribe to the SateFlow [searchVenuesState].
      *
      * @param query A search term to be applied against venue names. Could be empty to search for all venues.
      */
