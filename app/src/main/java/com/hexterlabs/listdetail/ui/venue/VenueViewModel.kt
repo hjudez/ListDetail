@@ -1,19 +1,20 @@
 package com.hexterlabs.listdetail.ui.venue
 
-import androidx.lifecycle.LiveData
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import com.hexterlabs.listdetail.domain.Venue
 import com.hexterlabs.listdetail.network.ConnectivityManager
 import com.hexterlabs.listdetail.repositories.VenuesRepository
 import com.hexterlabs.listdetail.ui.ListDetailViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import javax.inject.Inject
 
 @HiltViewModel
 class VenueViewModel @Inject constructor(
@@ -27,7 +28,8 @@ class VenueViewModel @Inject constructor(
     /**
      * Observable that emits the [Venue] loaded by this viewModel.
      */
-    val venue: LiveData<Venue?> = venuesRepository.getVenue(id).asLiveData()
+    val venue: StateFlow<Venue?> =
+        venuesRepository.getVenue(id).stateIn(viewModelScope, SharingStarted.Eagerly, null)
 
     init {
         viewModelScope.launch {
@@ -37,12 +39,12 @@ class VenueViewModel @Inject constructor(
             } else if (getPreviousLoadFailed() == true && !venuesRepository.isVenueInCache(id)) {
                 updateRefreshDataStatus(RefreshDataStatus.FAILURE)
             }
+            registerForConnectivityChanges(onConnectivityConnected = { onConnectivityConnected() })
         }
-        registerForConnectivityChanges(onConnectivityConnected = { onConnectivityConnected() })
     }
 
     /**
-     * Load venue details. To get the results of this call you must subscribe to the LiveData [venue].
+     * Load venue details. To get the results of this call you must subscribe to the StateFlow [venue].
      */
     private suspend fun loadVenue() = coroutineScope {
         Timber.d("load venue requested: $id")
@@ -53,8 +55,8 @@ class VenueViewModel @Inject constructor(
                 venuesRepository.loadVenue(id)
                 updateRefreshDataStatus(RefreshDataStatus.SUCCESS)
             } catch (e: Exception) {
+                // For simplicity we're going to catch all the errors and show them as the network being broken.
                 if (e !is CancellationException) { // Let's make sure we don't catch the CancellationException.
-                    // For simplicity we're going to catch all the errors and show them as the network being broken.
                     Timber.e("loadVenue error: ${e.message}")
                     setPreviousLoadFailed(true)
                     if (venuesRepository.isVenueInCache(id)) {
@@ -63,6 +65,8 @@ class VenueViewModel @Inject constructor(
                     } else {
                         updateRefreshDataStatus(RefreshDataStatus.FAILURE)
                     }
+                } else {
+                    throw e
                 }
             }
         }

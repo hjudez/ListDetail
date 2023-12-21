@@ -70,12 +70,14 @@ class SearchVenuesViewModel @Inject constructor(
                     updateRefreshDataStatus(RefreshDataStatus.NOT_FOUND)
                 }
             } catch (e: Exception) {
+                // For simplicity we're going to catch all the errors and show them as the network being broken.
                 if (e !is CancellationException) { // Let's make sure we don't catch the CancellationException.
-                    // For simplicity we're going to catch all the errors and show them as the network being broken.
                     Timber.e("searchVenues error: ${e.message}")
                     setPreviousSearchQuery(null)
                     setPreviousFailedSearchQuery(query)
                     updateRefreshDataStatus(RefreshDataStatus.FAILURE)
+                } else {
+                    throw e
                 }
             }
         }

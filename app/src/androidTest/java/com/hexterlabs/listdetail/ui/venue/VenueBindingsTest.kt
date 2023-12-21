@@ -13,12 +13,11 @@ import com.hexterlabs.listdetail.domain.Venue
 import com.hexterlabs.listdetail.ui.ListDetailViewModel
 import io.mockk.every
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class VenueBindingsTest {
 
     private val venueA = Venue("1", "abc", "pepe", 5.0, "contact1", "address1", "description1")
@@ -30,12 +29,12 @@ class VenueBindingsTest {
     private lateinit var context: Context
     private lateinit var tested: FragmentVenueBinding
 
-    private val venueLiveData = MutableLiveData<Venue>()
+    private val venueStateFlow = MutableStateFlow<Venue?>(null)
 
     private val stateLiveData = MutableLiveData(ListDetailViewModel.RefreshDataStatus.LOADING)
 
     private val viewModel = mockk<VenueViewModel> {
-        every { venue } returns venueLiveData
+        every { venue } returns venueStateFlow
         every { refreshDataState } returns stateLiveData
     }
 
@@ -103,7 +102,7 @@ class VenueBindingsTest {
     }
 
     private fun testVenue(venue: Venue) {
-        venueLiveData.value = venue
+        venueStateFlow.value = venue
         tested.viewModel = viewModel
         tested.executePendingBindings()
         assertEquals(venue.name, tested.venueName.text)

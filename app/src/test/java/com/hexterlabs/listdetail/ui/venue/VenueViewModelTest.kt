@@ -4,7 +4,6 @@ import androidx.arch.core.executor.testing.InstantTaskExecutorRule
 import androidx.lifecycle.SavedStateHandle
 import com.hexterlabs.listdetail.MainDispatcherRule
 import com.hexterlabs.listdetail.domain.Venue
-import com.hexterlabs.listdetail.getOrAwaitValue
 import com.hexterlabs.listdetail.network.ConnectivityManager
 import com.hexterlabs.listdetail.network.ConnectivityManagerImpl
 import com.hexterlabs.listdetail.repositories.VenuesRepository
@@ -15,6 +14,7 @@ import io.mockk.every
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
@@ -60,7 +60,7 @@ class VenueViewModelTest {
         coVerify {
             venuesRepository.loadVenue(VENUE_A_ID)
         }
-        assertEquals(venueA, tested.venue.getOrAwaitValue())
+        assertEquals(venueA, tested.venue.first())
         assertEquals(ListDetailViewModel.RefreshDataStatus.SUCCESS, tested.refreshDataState.value)
     }
 
