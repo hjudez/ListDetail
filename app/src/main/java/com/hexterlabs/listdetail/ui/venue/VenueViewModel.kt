@@ -8,7 +8,6 @@ import com.hexterlabs.listdetail.repositories.VenuesRepository
 import com.hexterlabs.listdetail.ui.ListDetailViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
@@ -33,11 +32,12 @@ class VenueViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            if (getPreviousLoadFailed() == null) {
-                Timber.d("init firing load of venue details")
+            if (getLoadingVenueSucceeded() == null) {
+                Timber.d("***hjs*** init firing load of venue details")
                 loadVenue()
-            } else if (getPreviousLoadFailed() == true && !venuesRepository.isVenueInCache(id)) {
-                updateRefreshDataStatus(RefreshDataStatus.FAILURE)
+            } else {
+                Timber.d("***hjs*** init update previous state")
+                updateRefreshDataStatusBasedOnCache()
             }
             registerForConnectivityChanges(onConnectivityConnected = { onConnectivityConnected() })
         }
@@ -46,59 +46,65 @@ class VenueViewModel @Inject constructor(
     /**
      * Load venue details. To get the results of this call you must subscribe to the StateFlow [venue].
      */
-    private suspend fun loadVenue() = coroutineScope {
-        Timber.d("load venue requested: $id")
-        setPreviousLoadFailed(false)
+    private suspend fun loadVenue() {
+        Timber.d("***hjs*** loading venue requested: $id")
         updateRefreshDataStatus(RefreshDataStatus.LOADING)
-        launch {
-            try {
-                venuesRepository.loadVenue(id)
-                updateRefreshDataStatus(RefreshDataStatus.SUCCESS)
-            } catch (e: Exception) {
-                // For simplicity we're going to catch all the errors and show them as the network being broken.
-                if (e !is CancellationException) { // Let's make sure we don't catch the CancellationException.
-                    Timber.e("loadVenue error: ${e.message}")
-                    setPreviousLoadFailed(true)
-                    if (venuesRepository.isVenueInCache(id)) {
-                        // If we have already cached this venue before we don't want to show any error to the user.
-                        updateRefreshDataStatus(RefreshDataStatus.SUCCESS)
-                    } else {
-                        updateRefreshDataStatus(RefreshDataStatus.FAILURE)
-                    }
-                } else {
-                    throw e
-                }
+        try {
+            venuesRepository.loadVenue(id)
+            setLoadingVenueSucceeded(true)
+            updateRefreshDataStatus(RefreshDataStatus.SUCCESS)
+        } catch (e: Exception) {
+            Timber.e("***hjs*** loading venue error: ${e.message}")
+            // For simplicity we're going to catch all the errors and show them as the network being broken.
+            if (e !is CancellationException) { // Let's make sure we don't catch the CancellationException.
+                setLoadingVenueSucceeded(false)
+                updateRefreshDataStatusBasedOnCache()
+            } else {
+                throw e
             }
         }
     }
 
     /**
-     * @returns whether or not the previous load failed from the saved state.
+     * @returns from the saved state whether or not loading the venue has succeeded.
      */
-    private fun getPreviousLoadFailed(): Boolean? = state[LOAD_FAILED_KEY]
+    private fun getLoadingVenueSucceeded(): Boolean? = state[LOAD_SUCCEEDED_KEY]
 
     /**
-     * Stores whether or not the previous load failed in the saved state.
+     * Stores in the saved state whether or not the loading the venue has succeeded.
      *
-     * @param failed true if the previous load failed, false otherwise.
+     * @param failed true if loading the venue failed, false otherwise.
      */
-    private fun setPreviousLoadFailed(failed: Boolean) {
-        state[LOAD_FAILED_KEY] = failed
+    private fun setLoadingVenueSucceeded(failed: Boolean) {
+        state[LOAD_SUCCEEDED_KEY] = failed
+    }
+
+    /**
+     * Helper method to update the refresh data state based on whether or not the venue is already cached.
+     */
+    private suspend fun updateRefreshDataStatusBasedOnCache() {
+        if (venuesRepository.isVenueInCache(id)) {
+            // If we have already cached this venue before we don't want to show any error to the user.
+            updateRefreshDataStatus(RefreshDataStatus.SUCCESS)
+        } else {
+            updateRefreshDataStatus(RefreshDataStatus.FAILURE)
+        }
     }
 
     /**
      * When connection comes back we check if there was any pending request that failed (probably because the connection was lost).
-     * If so, if getPreviousLoadFailed is true, then we fire this request again.
+     * If so, if loadingVenueSucceeded is false, then we fire this request again.
      */
     private suspend fun onConnectivityConnected() {
-        val previousLoadFailed = getPreviousLoadFailed()
-        if (previousLoadFailed == true) {
+        Timber.d("***hjs*** onConnectivityConnected()")
+        val loadingVenueSucceeded = getLoadingVenueSucceeded()
+        if (loadingVenueSucceeded == false) {
             loadVenue()
         }
     }
 
     companion object {
         const val PARAM_ID = "venueId"
-        const val LOAD_FAILED_KEY = "query_failed"
+        const val LOAD_SUCCEEDED_KEY = "loading_venue_succeeded"
     }
 }

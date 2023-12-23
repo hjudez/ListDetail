@@ -18,7 +18,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert.assertEquals
-import org.junit.Assert.assertTrue
+import org.junit.Assert.assertFalse
 import org.junit.Rule
 import org.junit.Test
 import org.junit.rules.TestRule
@@ -67,7 +67,7 @@ class VenueViewModelTest {
     @Test
     fun `init with a failed id in state triggers load with failed id`() = runTest {
         state[VenueViewModel.PARAM_ID] = VENUE_A_ID
-        state[VenueViewModel.LOAD_FAILED_KEY] = true
+        state[VenueViewModel.LOAD_SUCCEEDED_KEY] = false
         tested = VenueViewModel(venuesRepository, connectivityManager, state)
         coVerify {
             venuesRepository.loadVenue(VENUE_A_ID)
@@ -81,7 +81,7 @@ class VenueViewModelTest {
         coVerify {
             venuesRepository.loadVenue(ERROR_ID)
         }
-        assertTrue(state[VenueViewModel.LOAD_FAILED_KEY]!!)
+        assertFalse(state[VenueViewModel.LOAD_SUCCEEDED_KEY]!!)
         assertEquals(ListDetailViewModel.RefreshDataStatus.FAILURE, tested.refreshDataState.value)
     }
 
@@ -93,7 +93,7 @@ class VenueViewModelTest {
         coVerify {
             venuesRepository.loadVenue(ERROR_ID)
         }
-        assertTrue(state[VenueViewModel.LOAD_FAILED_KEY]!!)
+        assertFalse(state[VenueViewModel.LOAD_SUCCEEDED_KEY]!!)
         assertEquals(ListDetailViewModel.RefreshDataStatus.SUCCESS, tested.refreshDataState.value)
     }
 

@@ -5,8 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hexterlabs.listdetail.network.ConnectivityManager
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import timber.log.Timber
 
 /**
  * ViewModel that acts as a service layer, abstracting common functionality to all the viewModels.
@@ -42,8 +42,10 @@ open class ListDetailViewModel(
             connectivityManager.getNetworkStatus().collect {
                 // Let's observe for connectivity changes...
                 if (it == ConnectivityManager.ConnectionStatus.CONNECTED) {
+                    Timber.d("***hjs*** registerForConnectivityChanges() CONNECTED")
                     onConnectivityConnected?.invoke()
                 } else {
+                    Timber.d("***hjs*** registerForConnectivityChanges() DISCONNECTED")
                     onConnectivityDisconnected?.invoke()
                 }
             }

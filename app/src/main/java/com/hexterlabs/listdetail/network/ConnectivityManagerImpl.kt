@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.stateIn
+import timber.log.Timber
 
 class ConnectivityManagerImpl(
     connectivityManager: android.net.ConnectivityManager,
@@ -26,14 +27,17 @@ class ConnectivityManagerImpl(
     private val networkStatus = callbackFlow {
         val callback = object : android.net.ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: Network) {
+                Timber.d("***hjs*** callbackFlow - networkStatus onAvailable")
                 trySend(ConnectivityManager.ConnectionStatus.CONNECTED)
             }
 
             override fun onLost(network: Network) {
+                Timber.d("***hjs*** callbackFlow - networkStatus onLost")
                 trySend(ConnectivityManager.ConnectionStatus.DISCONNECTED)
             }
 
             override fun onUnavailable() {
+                Timber.d("***hjs*** callbackFlow - networkStatus onUnavailable")
                 trySend(ConnectivityManager.ConnectionStatus.DISCONNECTED)
             }
         }
