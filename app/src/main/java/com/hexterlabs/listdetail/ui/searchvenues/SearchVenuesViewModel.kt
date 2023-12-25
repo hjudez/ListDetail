@@ -37,11 +37,11 @@ class SearchVenuesViewModel @Inject constructor(
     private var previousSearchVenuesJob: Job? = null
 
     init {
-        // Lets start with some random venues the very first time we open the app.
-        if (getPreviousSearchQuery() == null && getPreviousFailedSearchQuery() == null) {
-            Timber.d("init firing search with empty string")
-            searchVenues("")
-        } else if (getPreviousFailedSearchQuery() != null) {
+        if (getSucceededSearchQuery() == null && getFailedSearchQuery() == null) {
+            Timber.d("***hjs*** init call, let's search for all venues")
+            searchVenues(getSearchingQuery() ?: "", true)
+        } else if (getFailedSearchQuery() != null) {
+            Timber.d("***hjs*** init error state")
             updateRefreshDataStatus(RefreshDataStatus.FAILURE)
         }
         registerForConnectivityChanges(onConnectivityConnected = { onConnectivityConnected() })
@@ -52,29 +52,32 @@ class SearchVenuesViewModel @Inject constructor(
      *
      * @param query A search term to be applied against venue names. Could be empty to search for all venues.
      */
-    fun searchVenues(query: String) {
-        Timber.d("searchVenues search requested: $query")
-        if (getPreviousSearchQuery() == query) return // ignore if the query is the same. This could happen after rotating the device.
-        setPreviousSearchQuery(query)
-        setPreviousFailedSearchQuery(null)
+    fun searchVenues(query: String, init: Boolean = false) {
+        Timber.d("***hjs*** searchVenues search requested: $query")
+        if (!init && (getSearchingQuery() == query || getSucceededSearchQuery() == query)) return // ignore if the query is the same. This could happen after rotating the device.
         updateRefreshDataStatus(RefreshDataStatus.LOADING)
+        setSearchingQuery(query)
+        setSucceededSearchQuery(null)
+        setFailedSearchQuery(null)
         previousSearchVenuesJob?.cancel()
         previousSearchVenuesJob = viewModelScope.launch {
             venuesRepository.clearSearchVenues()
             delay(QUERY_SEARCH_DELAY_IN_MILLIS) // short delay so we don't fire too many requests while the user is typing.
             try {
-                Timber.d("searchVenues firing search: $query")
+                Timber.d("***hjs*** searchVenues firing search: $query")
                 if (venuesRepository.searchVenues(query).isNotEmpty()) {
                     updateRefreshDataStatus(RefreshDataStatus.SUCCESS)
                 } else {
                     updateRefreshDataStatus(RefreshDataStatus.NOT_FOUND)
                 }
+                setSearchingQuery(null)
+                setSucceededSearchQuery(query)
             } catch (e: Exception) {
                 // For simplicity we're going to catch all the errors and show them as the network being broken.
                 if (e !is CancellationException) { // Let's make sure we don't catch the CancellationException.
-                    Timber.e("searchVenues error: ${e.message}")
-                    setPreviousSearchQuery(null)
-                    setPreviousFailedSearchQuery(query)
+                    Timber.e("***hjs*** searchVenues error: ${e.message}")
+                    setSearchingQuery(null)
+                    setFailedSearchQuery(query)
                     updateRefreshDataStatus(RefreshDataStatus.FAILURE)
                 } else {
                     throw e
@@ -84,30 +87,44 @@ class SearchVenuesViewModel @Inject constructor(
     }
 
     /**
-     * @returns the previous fired search query from the saved state.
+     * @returns the current search query from the saved state.
      */
-    private fun getPreviousSearchQuery(): String? = state[QUERY_KEY]
+    private fun getSearchingQuery(): String? = state[QUERY_KEY]
 
     /**
-     * Stores the last fired search query in the saved state.
+     * Stores the current search query in the saved state.
      *
      * @param query to store in the saved state.
      */
-    private fun setPreviousSearchQuery(query: String?) {
+    private fun setSearchingQuery(query: String?) {
         state[QUERY_KEY] = query
+    }
+
+    /**
+     * @returns the previous fired search query that succeeded from the saved state.
+     */
+    private fun getSucceededSearchQuery(): String? = state[QUERY_SUCCEEDED_KEY]
+
+    /**
+     * Stores the last fired search query that succeeded in the saved state.
+     *
+     * @param query to store in the saved state.
+     */
+    private fun setSucceededSearchQuery(query: String?) {
+        state[QUERY_SUCCEEDED_KEY] = query
     }
 
     /**
      * @returns the previous fired search query that failed from the saved state.
      */
-    private fun getPreviousFailedSearchQuery(): String? = state[QUERY_FAILED_KEY]
+    private fun getFailedSearchQuery(): String? = state[QUERY_FAILED_KEY]
 
     /**
      * Stores the last fired search query that failed in the saved state.
      *
      * @param query to store in the saved state.
      */
-    private fun setPreviousFailedSearchQuery(query: String?) {
+    private fun setFailedSearchQuery(query: String?) {
         state[QUERY_FAILED_KEY] = query
     }
 
@@ -116,7 +133,7 @@ class SearchVenuesViewModel @Inject constructor(
      * If so, if there is a previousFailedSearchQuery, then we fire this request again.
      */
     private fun onConnectivityConnected() {
-        val previousFailedSearchQuery = getPreviousFailedSearchQuery()
+        val previousFailedSearchQuery = getFailedSearchQuery()
         if (previousFailedSearchQuery != null) {
             searchVenues(previousFailedSearchQuery)
         }
@@ -125,6 +142,7 @@ class SearchVenuesViewModel @Inject constructor(
     companion object {
         const val QUERY_SEARCH_DELAY_IN_MILLIS = 400L
         const val QUERY_KEY = "query"
+        const val QUERY_SUCCEEDED_KEY = "query_succeeded"
         const val QUERY_FAILED_KEY = "query_failed"
     }
 }
