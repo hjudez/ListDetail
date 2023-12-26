@@ -1,10 +1,11 @@
 package com.hexterlabs.listdetail.ui
 
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.hexterlabs.listdetail.network.ConnectivityManager
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
@@ -21,14 +22,14 @@ open class ListDetailViewModel(
     enum class RefreshDataStatus { LOADING, SUCCESS, NOT_FOUND, FAILURE }
 
     /**
-     * MutableLiveData where we can set current state of refreshing the data from the network layer.
+     * MutableStateFlow where we can set current state of refreshing the data from the network layer.
      */
-    private val _refreshDataState = MutableLiveData<RefreshDataStatus>()
+    private val _refreshDataState = MutableStateFlow<RefreshDataStatus?>(null)
 
     /**
      * Observable that emits the current state of refreshing the data from the network layer.
      */
-    val refreshDataState: LiveData<RefreshDataStatus> = _refreshDataState
+    val refreshDataState: StateFlow<RefreshDataStatus?> = _refreshDataState.asStateFlow()
 
     /**
      * Register to receive notifications about connectivity changes.

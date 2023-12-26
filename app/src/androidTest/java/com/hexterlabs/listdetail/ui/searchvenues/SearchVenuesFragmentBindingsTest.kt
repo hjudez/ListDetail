@@ -4,13 +4,13 @@ import android.content.Context
 import android.content.Context.LAYOUT_INFLATER_SERVICE
 import android.view.LayoutInflater
 import android.view.View
-import androidx.lifecycle.MutableLiveData
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import com.hexterlabs.listdetail.databinding.FragmentSearchVenuesBinding
 import com.hexterlabs.listdetail.ui.ListDetailViewModel
 import io.mockk.every
 import io.mockk.mockk
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.junit.Assert.assertEquals
 import org.junit.Before
 import org.junit.Test
@@ -19,7 +19,7 @@ class SearchVenuesFragmentBindingsTest {
 
     private lateinit var tested: FragmentSearchVenuesBinding
 
-    private val refreshDataStateLiveData = MutableLiveData(ListDetailViewModel.RefreshDataStatus.LOADING)
+    private val refreshDataStateLiveData = MutableStateFlow(ListDetailViewModel.RefreshDataStatus.LOADING)
 
     private val searchVenuesViewModel = mockk<SearchVenuesViewModel> {
         every { refreshDataState } returns refreshDataStateLiveData

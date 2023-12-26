@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Context.LAYOUT_INFLATER_SERVICE
 import android.view.LayoutInflater
 import android.view.View
-import androidx.lifecycle.MutableLiveData
 import androidx.test.annotation.UiThreadTest
 import androidx.test.core.app.ApplicationProvider
 import com.hexterlabs.listdetail.R
@@ -31,7 +30,7 @@ class VenueBindingsTest {
 
     private val venueStateFlow = MutableStateFlow<Venue?>(null)
 
-    private val stateLiveData = MutableLiveData(ListDetailViewModel.RefreshDataStatus.LOADING)
+    private val stateLiveData = MutableStateFlow(ListDetailViewModel.RefreshDataStatus.LOADING)
 
     private val viewModel = mockk<VenueViewModel> {
         every { venue } returns venueStateFlow

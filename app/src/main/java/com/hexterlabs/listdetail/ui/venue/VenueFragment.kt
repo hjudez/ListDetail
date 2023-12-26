@@ -19,7 +19,7 @@ class VenueFragment : Fragment() {
 
     /**
      * Inflates the layout with Data Binding, sets its lifecycle owner to the VenueFragment
-     * to enable Data Binding to observe LiveData.
+     * to enable Data Binding to observe StateFlow.
      */
     override fun onCreateView(
         inflater: LayoutInflater,
